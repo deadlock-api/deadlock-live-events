@@ -1,0 +1,77 @@
+use core::num::TryFromIntError;
+use core::str::FromStr;
+
+use serde::{Deserialize, Deserializer};
+
+// Query Parameter Parsing
+#[derive(Debug, Deserialize)]
+#[serde(untagged)]
+enum CommaSeparated<T>
+where
+    T: core::fmt::Debug + FromStr,
+{
+    /// A List of numbers in a single comma separated string, e.g. "1,2,3"
+    CommaStringList(String),
+    /// A List of numbers in a string array, e.g. `["1", "2", "3"]`
+    StringList(Vec<String>),
+    /// A single number, e.g. 1
+    Single(T),
+    /// A list of numbers, e.g. [1, 2, 3]
+    List(Vec<T>),
+}
+
+pub(crate) fn comma_separated_deserialize_option<'de, D, T>(
+    deserializer: D,
+) -> Result<Option<Vec<T>>, D::Error>
+where
+    D: Deserializer<'de>,
+    T: FromStr + Deserialize<'de> + core::fmt::Debug,
+{
+    let parsed: CommaSeparated<T> = match Option::deserialize(deserializer)? {
+        Some(v) => v,
+        None => return Ok(None),
+    };
+
+    Ok(match parsed {
+        CommaSeparated::List(vec) => Some(vec),
+        CommaSeparated::Single(val) => Some(vec![val]),
+        CommaSeparated::StringList(val) => {
+            let mut out = vec![];
+            for s in val {
+                let parsed = s
+                    .parse()
+                    .map_err(|_| serde::de::Error::custom("Failed to parse list item"))?;
+                out.push(parsed);
+            }
+            if out.is_empty() { None } else { Some(out) }
+        }
+        CommaSeparated::CommaStringList(str) => {
+            let str = str.replace(['[', ']'], "");
+
+            // If the string is empty, return None
+            if str.is_empty() {
+                return Ok(None);
+            }
+
+            let mut out = vec![];
+            for s in str.split(',') {
+                let parsed = s.trim().parse().map_err(|_| {
+                    serde::de::Error::custom("Failed to parse comma separated list")
+                })?;
+                out.push(parsed);
+            }
+            if out.is_empty() { None } else { Some(out) }
+        }
+    })
+}
+
+const STEAM_ID_64_IDENT: u64 = 76561197960265728;
+
+pub(crate) fn steamid64_to_steamid3(steam_id: u64) -> Result<u32, TryFromIntError> {
+    // If steam id is smaller than the Steam ID 64 identifier, it's a Steam ID 3
+    if steam_id < STEAM_ID_64_IDENT {
+        return u32::try_from(steam_id);
+    }
+    // (steam_id - STEAM_ID_64_IDENT) as u32
+    u32::try_from(steam_id - STEAM_ID_64_IDENT)
+}

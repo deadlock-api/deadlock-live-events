@@ -1,0 +1,28 @@
+[package]
+name = "deadlock-live-events"
+version = "0.1.0"
+edition = "2024"
+description = "API for Deadlock live events"
+repository = "https://github.com/deadlock-api/deadlock-live-events"
+license = "MIT"
+
+[dependencies]
+reqwest = { version = "0.12.23", features = ["json", "http2", "zstd", "gzip"] }
+tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"] }
+tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+cached = { version = "0.56.0", features = ["async", "serde"] }
+axum = "0.8.4"
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.142"
+tower-layer = "0.3.3"
+tower-http = { version = "0.6.6", features = ["compression-zstd", "compression-gzip", "cors", "decompression-zstd", "decompression-gzip", "normalize-path", "trace", "limit"] }
+tracing = "0.1.41"
+futures = "0.3.31"
+valveprotos = { git = "https://github.com/deadlock-api/valveprotos-rs.git", rev = "70e8288b02102cc1d4c181253fe6179da5186293", features = ["gc-client", "serde", "user-msgs", "game-msgs"] }
+prost = "0.14.1"
+tryhard = "0.5.2"
+strum = { version = "0.27.2", features = ["derive"] }
+haste = { git = "https://github.com/deadlock-api/haste.git", rev = "64d3fa514dd1b3453e62e8e09b06c4d153db8eb5" }
+async-stream = "0.3.6"
+thiserror = "2.0.14"
+serde-env = "0.2.0"
