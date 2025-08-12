@@ -3,6 +3,7 @@
 ## Self Host
 
 You don't need to clone this repo, here is how to use it.
+You need to have docker installed.
 
 1. Create a new folder and copy the `.env.example` file into it, rename it to `.env`.
 2. In the `.env` file, add your Deadlock API key (optional).
