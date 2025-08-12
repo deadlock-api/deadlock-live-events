@@ -1,6 +1,6 @@
 services:
   api:
-    image: ghcr.io/deadlock-api/deadlock-api-rust/deadlock-live-events:latest
+    image: ghcr.io/deadlock-api/deadlock-live-events:latest
     env_file: .env
     ports:
       - "3000:3000"
