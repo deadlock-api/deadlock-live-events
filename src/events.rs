@@ -10,7 +10,6 @@ use cached::proc_macro::once;
 use futures::{Stream, TryStreamExt};
 use haste::broadcast::BroadcastHttp;
 use haste::parser::Parser;
-use reqwest::Response;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use strum::VariantArray;
@@ -21,6 +20,7 @@ use crate::demo_parser::error::DemoParseError;
 use crate::demo_parser::visitor::SendingVisitor;
 use crate::error::{APIError, APIResult};
 use crate::state::AppState;
+use crate::utils;
 use crate::utils::comma_separated_deserialize_option;
 
 #[derive(Serialize, Deserialize)]
@@ -107,33 +107,6 @@ async fn demo_event_stream(
     })
 }
 
-async fn spectate_match(
-    http_client: &reqwest::Client,
-    match_id: u64,
-    api_key: Option<&str>,
-) -> reqwest::Result<()> {
-    http_client
-        .get(format!(
-            "https://api.deadlock-api.com/v1/matches/{match_id}/live/url"
-        ))
-        .header("X-API-Key", api_key.unwrap_or_default())
-        .send()
-        .await?
-        .error_for_status()
-        .map(drop)
-}
-
-async fn live_demo_exists(http_client: &reqwest::Client, match_id: u64) -> bool {
-    http_client
-        .head(format!(
-            "https://dist1-ord1.steamcontent.com/tv/{match_id}/sync"
-        ))
-        .send()
-        .await
-        .and_then(Response::error_for_status)
-        .is_ok()
-}
-
 pub(super) async fn events(
     Path(match_id): Path<u64>,
     Query(body): Query<DemoEventsQuery>,
@@ -141,7 +114,7 @@ pub(super) async fn events(
 ) -> APIResult<impl IntoResponse> {
     info!("Spectating match {match_id}");
     tryhard::retry_fn(|| {
-        spectate_match(
+        utils::spectate_match(
             &state.http_client,
             match_id,
             state.config.deadlock_api_key.as_ref().map(AsRef::as_ref),
@@ -153,7 +126,7 @@ pub(super) async fn events(
 
     // Wait for the demo to be available
     tryhard::retry_fn(|| async {
-        live_demo_exists(&state.http_client, match_id)
+        utils::live_demo_exists(&state.http_client, match_id)
             .await
             .then_some(())
             .ok_or(())

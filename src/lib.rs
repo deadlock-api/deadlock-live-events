@@ -11,6 +11,7 @@
 #![allow(clippy::unreadable_literal)]
 #![allow(clippy::missing_errors_doc)]
 
+mod demo;
 mod demo_parser;
 mod error;
 mod events;
@@ -37,6 +38,7 @@ pub fn router() -> Result<NormalizePath<Router>, StartupError> {
             "/v1/matches/{match_id}/live/demo/events",
             get(events::events),
         )
+        .route("/v1/matches/{match_id}/live/demo", get(demo::demo))
         .layer(CorsLayer::permissive())
         .with_state(state);
     Ok(NormalizePathLayer::trim_trailing_slash().layer(router))

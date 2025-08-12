@@ -26,3 +26,4 @@ haste = { git = "https://github.com/deadlock-api/haste.git", rev = "64d3fa514dd1
 async-stream = "0.3.6"
 thiserror = "2.0.14"
 serde-env = "0.2.0"
+bytes = "1.10.1"
