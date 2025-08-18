@@ -24,6 +24,6 @@ tryhard = "0.5.2"
 strum = { version = "0.27.2", features = ["derive"] }
 haste = { git = "https://github.com/deadlock-api/haste.git", rev = "64d3fa514dd1b3453e62e8e09b06c4d153db8eb5" }
 async-stream = "0.3.6"
-thiserror = "2.0.14"
+thiserror = "2.0.15"
 serde-env = "0.2.0"
 bytes = "1.10.1"
