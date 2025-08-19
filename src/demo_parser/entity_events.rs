@@ -88,7 +88,7 @@ pub(super) struct PlayerControllerEvent {
     steam_name: Option<String>,
     team: Option<u8>,
     hero_id: Option<u32>,
-    hero_build_id: Option<u64>,
+    hero_badge_xp: Option<u32>,
     player_slot: Option<u8>,
     rank: Option<i32>, // Currently always 0 or None, as Valve hides rank data
     assigned_lane: Option<i8>,
@@ -118,7 +118,7 @@ impl EntityUpdateEvent for PlayerControllerEvent {
                 .and_then(|s| steamid64_to_steamid3(s).ok()),
             steam_name: entity.get_value(&STEAM_NAME_HASH),
             team: entity.get_value(&TEAM_HASH),
-            hero_build_id: entity.get_value(&HERO_BUILD_ID_HASH),
+            hero_badge_xp: entity.get_value(&HERO_BADGE_XP_HASH),
             player_slot: entity.get_value(&PLAYER_SLOT_HASH),
             rank: entity.get_value(&RANK_HASH),
             assigned_lane: entity.get_value(&ASSIGNED_LANE_HASH),
