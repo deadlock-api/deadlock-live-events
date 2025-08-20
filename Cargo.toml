@@ -13,7 +13,7 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 cached = { version = "0.56.0", features = ["async", "serde"] }
 axum = "0.8.4"
 serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.142"
+serde_json = "1.0.143"
 tower-layer = "0.3.3"
 tower-http = { version = "0.6.6", features = ["cors", "normalize-path", "trace", "limit"] }
 tracing = "0.1.41"
@@ -24,6 +24,6 @@ tryhard = "0.5.2"
 strum = { version = "0.27.2", features = ["derive"] }
 haste = { git = "https://github.com/deadlock-api/haste.git", rev = "b8590102eb0ed4278f5ce1448eb41c8ec185c96e" }
 async-stream = "0.3.6"
-thiserror = "2.0.15"
+thiserror = "2.0.16"
 serde-env = "0.2.0"
 bytes = "1.10.1"
