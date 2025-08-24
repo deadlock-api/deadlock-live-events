@@ -1,3 +1,4 @@
+use core::time::Duration;
 use std::string::ToString;
 
 use async_stream::try_stream;
@@ -19,6 +20,7 @@ use crate::demo_parser::error::DemoParseError;
 use crate::demo_parser::visitor::SendingVisitor;
 use crate::error::{APIError, APIResult};
 use crate::state::AppState;
+use crate::utils;
 use crate::utils::comma_separated_deserialize_option;
 
 #[derive(Serialize, Deserialize)]
@@ -111,28 +113,28 @@ pub(super) async fn events(
     State(state): State<AppState>,
 ) -> APIResult<impl IntoResponse> {
     info!("Spectating match {match_id}");
-    // tryhard::retry_fn(|| {
-    //     utils::spectate_match(
-    //         &state.http_client,
-    //         match_id,
-    //         state.config.deadlock_api_key.as_ref().map(AsRef::as_ref),
-    //     )
-    // })
-    // .retries(3)
-    // .fixed_backoff(Duration::from_millis(200))
-    // .await?;
-    //
-    // // Wait for the demo to be available
-    // tryhard::retry_fn(|| async {
-    //     utils::live_demo_exists(&state.http_client, match_id)
-    //         .await
-    //         .then_some(())
-    //         .ok_or(())
-    // })
-    // .retries(60)
-    // .fixed_backoff(Duration::from_millis(500))
-    // .await
-    // .map_err(|()| APIError::internal("Failed to spectate match"))?;
+    tryhard::retry_fn(|| {
+        utils::spectate_match(
+            &state.http_client,
+            match_id,
+            state.config.deadlock_api_key.as_ref().map(AsRef::as_ref),
+        )
+    })
+    .retries(3)
+    .fixed_backoff(Duration::from_millis(200))
+    .await?;
+
+    // Wait for the demo to be available
+    tryhard::retry_fn(|| async {
+        utils::live_demo_exists(&state.http_client, match_id)
+            .await
+            .then_some(())
+            .ok_or(())
+    })
+    .retries(60)
+    .fixed_backoff(Duration::from_millis(500))
+    .await
+    .map_err(|()| APIError::internal("Failed to spectate match"))?;
 
     info!("Demo available for match {match_id}");
     let stream = demo_event_stream(match_id, body)
