@@ -76,6 +76,10 @@ async fn demo_event_stream(
     let mut parser = Parser::from_stream_with_visitor(demo_stream, visitor)?;
     tokio::spawn(async move {
         loop {
+            if sender.is_closed() {
+                warn!("Channel closed, ending demo stream");
+                break;
+            }
             let demo_stream = parser.demo_stream_mut();
             debug!("Waiting for next packet in demo stream");
             match demo_stream.next_packet().await {
