@@ -9,7 +9,7 @@ license = "MIT"
 [dependencies]
 reqwest = { version = "0.12.23", features = ["json", "http2", "gzip"] }
 tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread"] }
-tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+tracing-subscriber = { version = "0.3.20", features = ["env-filter"] }
 cached = { version = "0.56.0", features = ["async", "serde"] }
 axum = "0.8.4"
 serde = { version = "1.0.219", features = ["derive"] }
