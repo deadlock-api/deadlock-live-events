@@ -151,6 +151,11 @@ pub(super) struct PlayerPawnEvent {
     controller: Option<i32>,
     team: Option<u8>,
     hero_id: Option<u32>,
+    hero_build_id: Option<u64>,
+    hero_build_serialized: Option<Box<[u8]>>,
+    quickbuy_queue: Vec<u64>,
+    quickbuy_auto_purchase: Option<bool>,
+    quickbuy_auto_queue_build: Option<bool>,
     level: Option<i32>,
     max_health: Option<i32>,
     health: Option<i32>,
@@ -163,10 +168,18 @@ impl EntityUpdateEvent for PlayerPawnEvent {
             controller: entity.get_value(&CONTROLLER_HASH).map(ehandle_to_index),
             team: entity.get_value(&TEAM_HASH),
             hero_id: entity.get_value(&HERO_ID_HASH),
+            hero_build_id: entity.get_value(&HERO_BUILD_ID_HASH),
+            hero_build_serialized: entity.get_value(&HERO_BUILD_SERIALIZED_HASH),
             level: entity.get_value(&LEVEL_HASH),
             max_health: entity.get_value(&MAX_HEALTH_HASH),
             health: entity.get_value(&HEALTH_HASH),
             position: utils::get_entity_position(entity),
+            quickbuy_auto_purchase: entity.get_value(&QUICKBUY_AUTO_PURCHASE_HASH),
+            quickbuy_auto_queue_build: entity.get_value(&QUICKBUY_AUTO_QUUE_BUILD_HASH),
+            quickbuy_queue: (0..entity.get_value(&QUICKBUY_HASH).unwrap_or_default())
+                .map(|i| add_u64_to_hash(QUICKBUY_HASH, add_u64_to_hash(0, i)))
+                .filter_map(|h| entity.get_value(&h))
+                .collect(),
         }
         .into()
     }

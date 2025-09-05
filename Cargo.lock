@@ -220,7 +220,7 @@ dependencies = [
  "cached_proc_macro",
  "cached_proc_macro_types",
  "futures",
- "hashbrown",
+ "hashbrown 0.15.5",
  "once_cell",
  "serde",
  "thiserror",
@@ -674,9 +674,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "hashbrown"
+version = "0.16.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5419bdc4f6a9207fbeba6d11b604d481addf78ecd10c11ad51e76c2f6482748d"
+
+[[package]]
 name = "haste"
 version = "0.0.0"
-source = "git+https://github.com/deadlock-api/haste.git?rev=f0160e243d595f8e70f5432f1b16d4e741b38031#f0160e243d595f8e70f5432f1b16d4e741b38031"
+source = "git+https://github.com/deadlock-api/haste.git?rev=42b9564293bb15d76cfc61bd428b9bac44aa6d45#42b9564293bb15d76cfc61bd428b9bac44aa6d45"
 dependencies = [
  "haste_broadcast",
  "haste_core",
@@ -685,7 +691,7 @@ dependencies = [
 [[package]]
 name = "haste_broadcast"
 version = "0.0.0"
-source = "git+https://github.com/deadlock-api/haste.git?rev=f0160e243d595f8e70f5432f1b16d4e741b38031#f0160e243d595f8e70f5432f1b16d4e741b38031"
+source = "git+https://github.com/deadlock-api/haste.git?rev=42b9564293bb15d76cfc61bd428b9bac44aa6d45#42b9564293bb15d76cfc61bd428b9bac44aa6d45"
 dependencies = [
  "anyhow",
  "bytes",
@@ -704,12 +710,12 @@ dependencies = [
 [[package]]
 name = "haste_core"
 version = "0.0.0"
-source = "git+https://github.com/deadlock-api/haste.git?rev=f0160e243d595f8e70f5432f1b16d4e741b38031#f0160e243d595f8e70f5432f1b16d4e741b38031"
+source = "git+https://github.com/deadlock-api/haste.git?rev=42b9564293bb15d76cfc61bd428b9bac44aa6d45#42b9564293bb15d76cfc61bd428b9bac44aa6d45"
 dependencies = [
  "anyhow",
  "dungers",
  "dyn-clone",
- "hashbrown",
+ "hashbrown 0.16.0",
  "haste_vartype",
  "nohash",
  "prost 0.14.1",
@@ -722,7 +728,7 @@ dependencies = [
 [[package]]
 name = "haste_vartype"
 version = "0.0.0"
-source = "git+https://github.com/deadlock-api/haste.git?rev=f0160e243d595f8e70f5432f1b16d4e741b38031#f0160e243d595f8e70f5432f1b16d4e741b38031"
+source = "git+https://github.com/deadlock-api/haste.git?rev=42b9564293bb15d76cfc61bd428b9bac44aa6d45#42b9564293bb15d76cfc61bd428b9bac44aa6d45"
 dependencies = [
  "dungers",
  "thiserror",
@@ -981,7 +987,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2481980430f9f78649238835720ddccc57e52df14ffce1c6f37391d61b563e9"
 dependencies = [
  "equivalent",
- "hashbrown",
+ "hashbrown 0.15.5",
 ]
 
 [[package]]

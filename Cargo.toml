@@ -22,7 +22,7 @@ valveprotos = { git = "https://github.com/deadlock-api/valveprotos-rs.git", rev 
 prost = "0.14.1"
 tryhard = "0.5.2"
 strum = { version = "0.27.2", features = ["derive"] }
-haste = { git = "https://github.com/deadlock-api/haste.git", rev = "f0160e243d595f8e70f5432f1b16d4e741b38031" }
+haste = { git = "https://github.com/deadlock-api/haste.git", rev = "42b9564293bb15d76cfc61bd428b9bac44aa6d45" }
 async-stream = "0.3.6"
 thiserror = "2.0.16"
 serde-env = "0.2.0"
