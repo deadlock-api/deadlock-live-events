@@ -1,0 +1,177 @@
+name: Rust CI/CD (Testing)
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Docker image tag to push (e.g., v1.0.0, specific-feature)"
+        required: true
+        type: string
+
+env:
+  CARGO_TERM_COLOR: always
+  IMAGE_NAME: ghcr.io/${{ github.repository }}
+
+permissions:
+  contents: read
+  packages: write
+  id-token: write
+
+concurrency:
+  cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.ref }}
+
+jobs:
+  # fmt:
+  #   name: Format
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Update Rust toolchain to stable
+  #       run: |
+  #         rustup override set stable
+  #         rustup update stable
+  #         rustup component add rustfmt
+  #     - name: Rustfmt Check
+  #       uses: actions-rust-lang/rustfmt@v1
+  #
+  # deps:
+  #   name: Dependencies
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Update Rust toolchain to stable
+  #       run: |
+  #         rustup override set stable
+  #         rustup update stable
+  #     - name: Machete
+  #       uses: bnjbvr/cargo-machete@7959c845782fed02ee69303126d4a12d64f1db18
+  #
+  # typos:
+  #   name: Typos
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Update Rust toolchain to stable
+  #       run: |
+  #         rustup override set stable
+  #         rustup update stable
+  #     - uses: taiki-e/cache-cargo-install-action@v2
+  #       with:
+  #         tool: typos-cli
+  #     - name: Typos Check
+  #       run: typos src/
+  #
+  # lint:
+  #   name: Lint
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #     - name: Install Protocol Buffers compiler
+  #       run: sudo apt-get update && sudo apt-get install -y protobuf-compiler libprotobuf-dev
+  #     - name: Cache Rust dependencies
+  #       uses: Swatinem/rust-cache@v2
+  #       with:
+  #         shared-key: "build-cache-${{ runner.os }}-${{ runner.arch }}-stable"
+  #     - name: Update Rust toolchain to stable
+  #       run: |
+  #         rustup override set stable
+  #         rustup update stable
+  #         rustup component add clippy
+  #     - name: Cargo Clippy (Deny Warnings)
+  #       run: cargo clippy --all-targets --locked -- -D warnings
+  #     - name: Cargo Clippy (Allow Warnings)
+  #       run: cargo clippy --all-targets --locked
+
+  # deploy:
+  #   name: Deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #
+  #     - name: Login to GitHub Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.repository_owner }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #
+  #     - name: Determine Docker Tag
+  #       run: |
+  #         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+  #           DOCKER_TAG="${{ inputs.tag }}"
+  #         elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+  #           DOCKER_TAG="latest"
+  #         else
+  #           DOCKER_TAG="${{ github.sha }}"
+  #         fi
+  #         echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+  #         echo "Using Docker tag: $DOCKER_TAG"
+  #
+  #     - uses: depot/setup-action@v1
+  #     - uses: useblacksmith/build-push-action@v2
+  #       with:
+  #         platforms: linux/arm64,linux/amd64
+  #         # project: k7kl7zsmcs
+  #         tags: ${{ env.IMAGE_NAME }}:${{ env.DOCKER_TAG }}
+  #         push: false
+  build:
+    strategy:
+      matrix:
+        platform: [amd64, arm64]
+        include:
+          - platform: amd64
+            runner: blacksmith-8vcpu-ubuntu-2204
+            docker_platform: linux/amd64
+          - platform: arm64
+            runner: blacksmith-8vcpu-ubuntu-2204-arm
+            docker_platform: linux/arm64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # - name: Determine Docker Tag
+      #   run: |
+      #     if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+      #       DOCKER_TAG="${{ inputs.tag }}"
+      #     elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+      #       DOCKER_TAG="latest"
+      #     else
+      #       DOCKER_TAG="${{ github.sha }}"
+      #     fi
+      #     echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+      #     echo "Using Docker tag: $DOCKER_TAG"
+
+      - name: Setup Docker Builder
+        uses: useblacksmith/setup-docker-builder@v1
+
+      - name: Build and push Docker image
+        uses: useblacksmith/build-push-action@v2
+        with:
+          push: false
+          tags: user/app:${{ matrix.platform }}
+          platforms: ${{ matrix.docker_platform }}
+  # Only when actually using this
+  # merge-manifests:
+  #   needs: build
+  #   runs-on: blacksmith
+  #   steps:
+  #     - name: Login to DockerHub
+  #       uses: docker/login-action@v2
+  #       with:
+  #         username: ${{ secrets.DOCKERHUB_USERNAME }}
+  #         password: ${{ secrets.DOCKERHUB_TOKEN }}
+  #
+  #     - name: Create and push multi-arch manifest
+  #       run: |
+  #         docker manifest create user/app:latest \
+  #           user/app:amd64 \
+  #           user/app:arm64
+  #         docker manifest push user/app:latest
