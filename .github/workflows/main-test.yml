@@ -1,4 +1,4 @@
-name: Rust CI/CD (Testing)
+name: Rust CI/CD (Testing WIP)
 
 on:
   push:
