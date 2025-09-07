@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Docker image tag to push (e.g., v1.0.0, specific-feature)'
+        description: "Docker image tag to push (e.g., v1.0.0, specific-feature)"
         required: true
         type: string
 
@@ -89,35 +89,35 @@ jobs:
       - name: Cargo Clippy (Allow Warnings)
         run: cargo clippy --all-targets --locked
 
-  deploy:
-    name: Deploy
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v5
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Determine Docker Tag
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            DOCKER_TAG="${{ inputs.tag }}"
-          elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
-            DOCKER_TAG="latest"
-          else
-            DOCKER_TAG="${{ github.sha }}"
-          fi
-          echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
-          echo "Using Docker tag: $DOCKER_TAG"
-
-      - uses: depot/setup-action@v1
-      - uses: depot/build-push-action@v1
-        with:
-          platforms: linux/arm64,linux/amd64
-          project: k7kl7zsmcs
-          tags: ${{ env.IMAGE_NAME }}:${{ env.DOCKER_TAG }}
-          push: true
+  # deploy:
+  #   name: Deploy
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v5
+  #
+  #     - name: Login to GitHub Container Registry
+  #       uses: docker/login-action@v3
+  #       with:
+  #         registry: ghcr.io
+  #         username: ${{ github.repository_owner }}
+  #         password: ${{ secrets.GITHUB_TOKEN }}
+  #
+  #     - name: Determine Docker Tag
+  #       run: |
+  #         if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+  #           DOCKER_TAG="${{ inputs.tag }}"
+  #         elif [[ "${{ github.ref }}" == "refs/heads/master" ]]; then
+  #           DOCKER_TAG="latest"
+  #         else
+  #           DOCKER_TAG="${{ github.sha }}"
+  #         fi
+  #         echo "DOCKER_TAG=$DOCKER_TAG" >> $GITHUB_ENV
+  #         echo "Using Docker tag: $DOCKER_TAG"
+  #
+  #     - uses: depot/setup-action@v1
+  #     - uses: depot/build-push-action@v1
+  #       with:
+  #         platforms: linux/arm64,linux/amd64
+  #         project: k7kl7zsmcs
+  #         tags: ${{ env.IMAGE_NAME }}:${{ env.DOCKER_TAG }}
+  #         push: true
