@@ -2,6 +2,7 @@ use haste::entities::fkey_from_path;
 use haste::fxhash;
 
 pub(super) const CONTROLLER_HASH: u64 = fxhash::hash_bytes(b"m_hController");
+pub(super) const OWNER_ENTITY_HASH: u64 = fxhash::hash_bytes(b"m_hOwnerEntity");
 pub(super) const PAWN_HASH: u64 = fxhash::hash_bytes(b"m_hPawn");
 pub(super) const STEAM_ID_HASH: u64 = fxhash::hash_bytes(b"m_steamID");
 pub(super) const STEAM_NAME_HASH: u64 = fxhash::hash_bytes(b"m_iszPlayerName");
@@ -40,6 +41,9 @@ pub(super) const QUICKBUY_AUTO_QUUE_BUILD_HASH: u64 =
     fxhash::hash_bytes(b"m_bQuickbuyAutoQueueBuild");
 pub(super) const QUICKBUY_HASH: u64 = fxhash::hash_bytes(b"m_vecQuickbuyQueue");
 pub(super) const CREATE_TIME_HASH: u64 = fxhash::hash_bytes(b"m_flCreateTime");
+pub(super) const ATTACK_PARRIED_HASH: u64 = fxhash::hash_bytes(b"m_bAttackParried");
+pub(super) const PARRY_START_TIME_HASH: u64 = fxhash::hash_bytes(b"m_flParryStartTime");
+pub(super) const PARRY_SUCCESS_TIME_HASH: u64 = fxhash::hash_bytes(b"m_flParrySuccessTime");
 pub(super) const LANE_HASH: u64 = fxhash::hash_bytes(b"m_iLane");
 pub(super) const SHIELD_ACTIVE_HASH: u64 = fxhash::hash_bytes(b"m_bShieldActive");
 pub(super) const ACTIVE_HASH: u64 = fxhash::hash_bytes(b"m_bActive");

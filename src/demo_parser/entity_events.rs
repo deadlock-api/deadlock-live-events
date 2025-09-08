@@ -47,6 +47,7 @@ pub(crate) enum EntityType {
     BreakablePropGoldPickup = fxhash::hash_bytes(b"CCitadel_BreakablePropGoldPickup"),
     PunchablePowerup = fxhash::hash_bytes(b"CCitadel_PunchablePowerup"),
     DestroyableBuilding = fxhash::hash_bytes(b"CCitadel_Destroyable_Building"),
+    AbilityMeleeParry = fxhash::hash_bytes(b"CCitadel_Ability_MeleeParry"),
 }
 
 impl EntityType {
@@ -252,6 +253,26 @@ impl EntityUpdateEvent for DestroyableBuilding {
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
+pub(super) struct AbilityMeleeParry {
+    owner_entity: Option<i32>,
+    attack_parried: Option<bool>,
+    start_time: Option<f32>,
+    success_time: Option<f32>,
+}
+
+impl EntityUpdateEvent for AbilityMeleeParry {
+    fn from_entity_update(_ctx: &Context, _delta_header: Delta, entity: &Entity) -> Option<Self> {
+        Self {
+            owner_entity: entity.get_value(&OWNER_ENTITY_HASH).map(ehandle_to_index),
+            attack_parried: entity.get_value(&ATTACK_PARRIED_HASH),
+            start_time: entity.get_value(&PARRY_START_TIME_HASH),
+            success_time: entity.get_value(&PARRY_SUCCESS_TIME_HASH),
+        }
+        .into()
+    }
+}
+
+#[derive(Serialize, Debug, Clone, Default)]
 pub(super) struct PositionActiveEntity {
     active: bool,
     position: Option<[f32; 3]>,
@@ -302,6 +323,7 @@ pub(super) enum EntityUpdateEvents {
     BreakablePropGoldPickup(Box<PositionActiveEntity>),
     PunchablePowerup(Box<PositionEntity>),
     DestroyableBuilding(Box<DestroyableBuilding>),
+    AbilityMeleeParry(Box<AbilityMeleeParry>),
 }
 
 impl EntityUpdateEvents {
@@ -375,6 +397,10 @@ impl EntityUpdateEvents {
                 DestroyableBuilding::from_entity_update(ctx, delta, entity)
                     .map(Box::new)
                     .map(Self::DestroyableBuilding)
+            }EntityType::AbilityMeleeParry => {
+                AbilityMeleeParry::from_entity_update(ctx, delta, entity)
+                    .map(Box::new)
+                    .map(Self::AbilityMeleeParry)
             }
         }
     }
