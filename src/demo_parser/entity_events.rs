@@ -47,6 +47,7 @@ pub(crate) enum EntityType {
     BreakablePropGoldPickup = fxhash::hash_bytes(b"CCitadel_BreakablePropGoldPickup"),
     PunchablePowerup = fxhash::hash_bytes(b"CCitadel_PunchablePowerup"),
     DestroyableBuilding = fxhash::hash_bytes(b"CCitadel_Destroyable_Building"),
+    SinnersSacrifice = fxhash::hash_bytes(b"CNPC_Neutral_SinnersSacrifice"),
     AbilityMeleeParry = fxhash::hash_bytes(b"CCitadel_Ability_MeleeParry"),
 }
 
@@ -253,6 +254,24 @@ impl EntityUpdateEvent for DestroyableBuilding {
 }
 
 #[derive(Serialize, Debug, Clone, Default)]
+pub(super) struct SinnersSacrifice {
+    health: Option<i32>,
+    max_health: Option<i32>,
+    position: Option<[f32; 3]>,
+}
+
+impl EntityUpdateEvent for SinnersSacrifice {
+    fn from_entity_update(_ctx: &Context, _delta_header: Delta, entity: &Entity) -> Option<Self> {
+        Self {
+            health: entity.get_value(&HEALTH_HASH),
+            max_health: entity.get_value(&MAX_HEALTH_HASH),
+            position: utils::get_entity_position(entity),
+        }
+        .into()
+    }
+}
+
+#[derive(Serialize, Debug, Clone, Default)]
 pub(super) struct AbilityMeleeParry {
     owner_entity: Option<i32>,
     attack_parried: Option<bool>,
@@ -324,6 +343,7 @@ pub(super) enum EntityUpdateEvents {
     PunchablePowerup(Box<PositionEntity>),
     DestroyableBuilding(Box<DestroyableBuilding>),
     AbilityMeleeParry(Box<AbilityMeleeParry>),
+    SinnersSacrifice(Box<SinnersSacrifice>),
 }
 
 impl EntityUpdateEvents {
@@ -397,6 +417,11 @@ impl EntityUpdateEvents {
                 DestroyableBuilding::from_entity_update(ctx, delta, entity)
                     .map(Box::new)
                     .map(Self::DestroyableBuilding)
+            }
+            EntityType::SinnersSacrifice => {
+                SinnersSacrifice::from_entity_update(ctx, delta, entity)
+                    .map(Box::new)
+                    .map(Self::SinnersSacrifice)
             }
             EntityType::AbilityMeleeParry => {
                 AbilityMeleeParry::from_entity_update(ctx, delta, entity)
