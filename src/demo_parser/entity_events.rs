@@ -397,7 +397,8 @@ impl EntityUpdateEvents {
                 DestroyableBuilding::from_entity_update(ctx, delta, entity)
                     .map(Box::new)
                     .map(Self::DestroyableBuilding)
-            }EntityType::AbilityMeleeParry => {
+            }
+            EntityType::AbilityMeleeParry => {
                 AbilityMeleeParry::from_entity_update(ctx, delta, entity)
                     .map(Box::new)
                     .map(Self::AbilityMeleeParry)
