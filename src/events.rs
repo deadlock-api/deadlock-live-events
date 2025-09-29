@@ -6,7 +6,6 @@ use axum::extract::{Path, Query, State};
 use axum::http::{HeaderMap, HeaderValue, header};
 use axum::response::sse::{Event, KeepAlive};
 use axum::response::{IntoResponse, Sse};
-use cached::proc_macro::once;
 use futures::{Stream, TryStreamExt};
 use haste::broadcast::BroadcastHttp;
 use haste::parser::Parser;
@@ -33,7 +32,6 @@ pub(super) struct DemoEventsQuery {
     subscribed_entities: Option<Vec<EntityType>>,
 }
 
-#[once]
 fn all_sse_events() -> Vec<String> {
     EntityType::VARIANTS
         .iter()
