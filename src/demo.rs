@@ -34,28 +34,31 @@ pub(super) async fn demo(
     State(state): State<AppState>,
 ) -> APIResult<impl IntoResponse> {
     info!("Spectating match {match_id}");
-    tryhard::retry_fn(|| {
-        spectate_match(
-            &state.http_client,
-            match_id,
-            state.config.deadlock_api_key.as_ref().map(AsRef::as_ref),
-        )
-    })
-    .retries(3)
-    .fixed_backoff(Duration::from_millis(200))
-    .await?;
-
-    // Wait for the demo to be available
-    tryhard::retry_fn(|| async {
-        live_demo_exists(&state.http_client, match_id)
+    let already_spectated =
+        tryhard::retry_fn(|| async { live_demo_exists(&state.http_client, match_id).await })
+            .retries(60)
+            .fixed_backoff(Duration::from_millis(500))
             .await
-            .then_some(())
-            .ok_or(())
-    })
-    .retries(60)
-    .fixed_backoff(Duration::from_millis(500))
-    .await
-    .map_err(|()| APIError::internal("Failed to spectate match"))?;
+            .is_ok();
+    if !already_spectated {
+        tryhard::retry_fn(|| {
+            spectate_match(
+                &state.http_client,
+                match_id,
+                state.config.deadlock_api_key.as_ref().map(AsRef::as_ref),
+            )
+        })
+        .retries(3)
+        .fixed_backoff(Duration::from_millis(200))
+        .await?;
+
+        // Wait for the demo to be available
+        tryhard::retry_fn(|| async { live_demo_exists(&state.http_client, match_id).await })
+            .retries(60)
+            .fixed_backoff(Duration::from_millis(500))
+            .await
+            .map_err(|e| APIError::internal(format!("Failed to spectate match: {e}")))?;
+    }
 
     Ok(Body::from_stream(demo_stream(match_id)))
 }

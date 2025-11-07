@@ -127,16 +127,11 @@ pub(super) async fn events(
     .await?;
 
     // Wait for the demo to be available
-    tryhard::retry_fn(|| async {
-        utils::live_demo_exists(&state.http_client, match_id)
-            .await
-            .then_some(())
-            .ok_or(())
-    })
-    .retries(60)
-    .fixed_backoff(Duration::from_millis(500))
-    .await
-    .map_err(|()| APIError::internal("Failed to spectate match"))?;
+    tryhard::retry_fn(|| async { utils::live_demo_exists(&state.http_client, match_id).await })
+        .retries(60)
+        .fixed_backoff(Duration::from_millis(500))
+        .await
+        .map_err(|e| APIError::internal(format!("Failed to spectate match: {e}")))?;
 
     info!("Demo available for match {match_id}");
     let stream = demo_event_stream(match_id, body)

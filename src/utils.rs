@@ -93,7 +93,10 @@ pub(crate) async fn spectate_match(
         .map(drop)
 }
 
-pub(crate) async fn live_demo_exists(http_client: &reqwest::Client, match_id: u64) -> bool {
+pub(crate) async fn live_demo_exists(
+    http_client: &reqwest::Client,
+    match_id: u64,
+) -> reqwest::Result<()> {
     http_client
         .head(format!(
             "https://dist1-ord1.steamcontent.com/tv/{match_id}/sync"
@@ -101,5 +104,5 @@ pub(crate) async fn live_demo_exists(http_client: &reqwest::Client, match_id: u6
         .send()
         .await
         .and_then(Response::error_for_status)
-        .is_ok()
+        .map(drop)
 }
