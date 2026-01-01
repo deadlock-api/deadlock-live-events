@@ -1,7 +1,7 @@
 use core::num::TryFromIntError;
 use core::str::FromStr;
 
-use reqwest::Response;
+use reqwest::{IntoUrl, Response};
 use serde::{Deserialize, Deserializer};
 
 // Query Parameter Parsing
@@ -77,11 +77,16 @@ pub(crate) fn steamid64_to_steamid3(steam_id: u64) -> Result<u32, TryFromIntErro
     u32::try_from(steam_id - STEAM_ID_64_IDENT)
 }
 
+#[derive(Deserialize, Debug)]
+pub(crate) struct SpectateMatchResponse {
+    pub broadcast_url: String,
+}
+
 pub(crate) async fn spectate_match(
     http_client: &reqwest::Client,
     match_id: u64,
     api_key: Option<&str>,
-) -> reqwest::Result<()> {
+) -> reqwest::Result<SpectateMatchResponse> {
     http_client
         .get(format!(
             "https://api.deadlock-api.com/v1/matches/{match_id}/live/url"
@@ -89,18 +94,17 @@ pub(crate) async fn spectate_match(
         .header("X-API-Key", api_key.unwrap_or_default())
         .send()
         .await?
-        .error_for_status()
-        .map(drop)
+        .error_for_status()?
+        .json()
+        .await
 }
 
 pub(crate) async fn live_demo_exists(
     http_client: &reqwest::Client,
-    match_id: u64,
+    broadcast_url: impl IntoUrl,
 ) -> reqwest::Result<()> {
     http_client
-        .head(format!(
-            "https://dist1-ord1.steamcontent.com/tv/{match_id}/sync"
-        ))
+        .head(broadcast_url)
         .send()
         .await
         .and_then(Response::error_for_status)

@@ -56,15 +56,11 @@ fn send_info_event() -> Result<Event, axum::Error> {
 }
 
 async fn demo_event_stream(
-    match_id: u64,
+    broadcast_url: impl Into<String>,
     query: DemoEventsQuery,
 ) -> Result<impl Stream<Item = Result<Event, DemoParseError>>, DemoParseError> {
     let client = reqwest::Client::new();
-    let demo_stream = BroadcastHttp::start_streaming(
-        client,
-        format!("https://dist1-ord1.steamcontent.com/tv/{match_id}"),
-    )
-    .await?;
+    let demo_stream = BroadcastHttp::start_streaming(client, broadcast_url).await?;
     let (sender, mut receiver) = tokio::sync::mpsc::unbounded_channel();
     let visitor = SendingVisitor::new(
         sender.clone(),
@@ -101,7 +97,7 @@ async fn demo_event_stream(
         }
     });
     Ok(try_stream! {
-        info!("Starting to parse demo stream for match {match_id}");
+        info!("Starting to parse demo stream");
         yield send_info_event()?;
         while let Some(event) = receiver.recv().await {
             yield event;
@@ -115,7 +111,7 @@ pub(super) async fn events(
     State(state): State<AppState>,
 ) -> APIResult<impl IntoResponse> {
     info!("Spectating match {match_id}");
-    tryhard::retry_fn(|| {
+    let response = tryhard::retry_fn(|| {
         utils::spectate_match(
             &state.http_client,
             match_id,
@@ -127,14 +123,16 @@ pub(super) async fn events(
     .await?;
 
     // Wait for the demo to be available
-    tryhard::retry_fn(|| async { utils::live_demo_exists(&state.http_client, match_id).await })
-        .retries(60)
-        .fixed_backoff(Duration::from_millis(500))
-        .await
-        .map_err(|e| APIError::internal(format!("Failed to spectate match: {e}")))?;
+    tryhard::retry_fn(|| async {
+        utils::live_demo_exists(&state.http_client, &response.broadcast_url).await
+    })
+    .retries(60)
+    .fixed_backoff(Duration::from_millis(500))
+    .await
+    .map_err(|e| APIError::internal(format!("Failed to spectate match: {e}")))?;
 
     info!("Demo available for match {match_id}");
-    let stream = demo_event_stream(match_id, body)
+    let stream = demo_event_stream(response.broadcast_url, body)
         .await
         .map_err(|e| APIError::internal(e.to_string()))?
         .inspect_err(|e| error!("Error in demo event stream: {e}"));
