@@ -103,6 +103,8 @@ pub(crate) async fn live_demo_exists(
     http_client: &reqwest::Client,
     broadcast_url: impl IntoUrl,
 ) -> reqwest::Result<()> {
+    #[allow(clippy::expect_used)]
+    let broadcast_url = broadcast_url.into_url()?.join("sync").expect("Failed to join url");
     http_client
         .head(broadcast_url)
         .send()
