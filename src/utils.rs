@@ -101,12 +101,11 @@ pub(crate) async fn spectate_match(
 
 pub(crate) async fn live_demo_exists(
     http_client: &reqwest::Client,
-    broadcast_url: impl IntoUrl,
+    broadcast_url: &str,
 ) -> reqwest::Result<()> {
-    #[allow(clippy::expect_used)]
-    let broadcast_url = broadcast_url.into_url()?.join("sync").expect("Failed to join url");
+    let broadcast_url = broadcast_url.strip_suffix('/').unwrap_or(broadcast_url);
     http_client
-        .head(broadcast_url)
+        .head(format!("{broadcast_url}/sync"))
         .send()
         .await
         .and_then(Response::error_for_status)
