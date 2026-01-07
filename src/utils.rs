@@ -1,7 +1,7 @@
 use core::num::TryFromIntError;
 use core::str::FromStr;
 
-use reqwest::{IntoUrl, Response};
+use reqwest::Response;
 use serde::{Deserialize, Deserializer};
 
 // Query Parameter Parsing
