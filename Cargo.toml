@@ -18,11 +18,11 @@ tower-http = { version = "0.6.8", features = ["cors", "normalize-path", "trace",
 tracing = "0.1.44"
 futures = "0.3.31"
 valveprotos = { git = "https://github.com/deadlock-api/valveprotos-rs.git", rev = "22f44513a4945cb1f623877d9a6e939a542cc8d5", features = ["serde", "user-msgs", "game-msgs"] }
-prost = "0.14.1"
+prost = "0.14.3"
 tryhard = "0.5.2"
 strum = { version = "0.27.2", features = ["derive"] }
 haste = { git = "https://github.com/deadlock-api/haste.git", rev = "7c277686e9f3514e787b8477a0f7fa22cee43011" }
 async-stream = "0.3.6"
-thiserror = "2.0.17"
+thiserror = "2.0.18"
 serde-env = "0.2.0"
 bytes = "1.11.0"
