@@ -43,6 +43,14 @@ pub(super) enum DemoEventPayload {
         all_chat: Option<bool>,
         lane_color: Option<i32>,
     },
+    HeroKilled {
+        entindex_victim: Option<i32>,
+        entindex_attacker: Option<i32>,
+        entindex_inflictor: Option<i32>,
+        entindex_scorer: Option<i32>,
+        entindex_assisters: Vec<i32>,
+        victim_team_number: Option<i32>,
+    },
     TickEnd,
 }
 
@@ -53,6 +61,7 @@ impl Display for DemoEventPayload {
                 delta, entity_type, ..
             } => write!(f, "{entity_type}_entity_{delta}"),
             Self::ChatMessage { .. } => write!(f, "chat_message"),
+            Self::HeroKilled { .. } => write!(f, "hero_killed"),
             Self::TickEnd => write!(f, "tick_end"),
         }
     }

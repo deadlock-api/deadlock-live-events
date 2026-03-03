@@ -9,7 +9,9 @@ use prost::Message;
 use tokio::sync::mpsc::UnboundedSender;
 use tracing::debug;
 use valveprotos::common::{CMsgPlayerInfo, EDemoCommands};
-use valveprotos::deadlock::{CCitadelUserMsgChatMsg, CitadelUserMessageIds};
+use valveprotos::deadlock::{
+    CCitadelUserMsgChatMsg, CCitadelUserMsgHeroKilled, CitadelUserMessageIds,
+};
 
 use crate::demo_parser::entity_events::{
     EntityType, EntityUpdateEvent, EntityUpdateEvents, GameRulesProxyEvent,
@@ -139,6 +141,26 @@ impl Visitor for SendingVisitor {
             let sse_event = demo_event.try_into()?;
             self.sender.send(sse_event)?;
         }
+
+        if packet_type == CitadelUserMessageIds::KEUserMsgHeroKilled as u32
+            && let Ok(msg) = CCitadelUserMsgHeroKilled::decode(data)
+        {
+            let demo_event = DemoEvent {
+                tick: ctx.tick(),
+                game_time: self.game_time,
+                event: DemoEventPayload::HeroKilled {
+                    entindex_victim: msg.entindex_victim,
+                    entindex_attacker: msg.entindex_attacker,
+                    entindex_inflictor: msg.entindex_inflictor,
+                    entindex_scorer: msg.entindex_scorer,
+                    entindex_assisters: msg.entindex_assisters,
+                    victim_team_number: msg.victim_team_number,
+                },
+            };
+            let sse_event = demo_event.try_into()?;
+            self.sender.send(sse_event)?;
+        }
+
         Ok(())
     }
 

@@ -42,7 +42,11 @@ fn all_sse_events() -> Vec<String> {
                 format!("{e}_entity_deleted"),
             ]
         })
-        .chain(["tick_end", "end"].into_iter().map(ToString::to_string))
+        .chain(
+            ["tick_end", "hero_killed", "end"]
+                .into_iter()
+                .map(ToString::to_string),
+        )
         .collect()
 }
 
