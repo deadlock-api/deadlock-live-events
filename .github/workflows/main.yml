@@ -90,6 +90,7 @@ jobs:
         run: cargo clippy --all-targets --locked
   deploy-build:
     name: "Deploy: Build"
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     strategy:
       matrix:
         platform: [amd64, arm64]
@@ -136,6 +137,7 @@ jobs:
 
   deploy-merge-manifests:
     name: "Deploy: Merge Manifests"
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
     needs: deploy-build
     runs-on: blacksmith-2vcpu-ubuntu-2404
     steps:
