@@ -148,14 +148,7 @@ impl Visitor for SendingVisitor {
             let demo_event = DemoEvent {
                 tick: ctx.tick(),
                 game_time: self.game_time,
-                event: DemoEventPayload::HeroKilled {
-                    entindex_victim: msg.entindex_victim,
-                    entindex_attacker: msg.entindex_attacker,
-                    entindex_inflictor: msg.entindex_inflictor,
-                    entindex_scorer: msg.entindex_scorer,
-                    entindex_assisters: msg.entindex_assisters,
-                    victim_team_number: msg.victim_team_number,
-                },
+                event: DemoEventPayload::HeroKilled(msg),
             };
             let sse_event = demo_event.try_into()?;
             self.sender.send(sse_event)?;
