@@ -4,6 +4,7 @@ use axum::response::sse::Event;
 use haste::entities::DeltaHeader;
 use serde::Serialize;
 use strum::{Display, FromRepr};
+use valveprotos::deadlock::CCitadelUserMsgHeroKilled;
 
 use crate::demo_parser::entity_events::{EntityType, EntityUpdateEvents};
 
@@ -43,14 +44,7 @@ pub(super) enum DemoEventPayload {
         all_chat: Option<bool>,
         lane_color: Option<i32>,
     },
-    HeroKilled {
-        entindex_victim: Option<i32>,
-        entindex_attacker: Option<i32>,
-        entindex_inflictor: Option<i32>,
-        entindex_scorer: Option<i32>,
-        entindex_assisters: Vec<i32>,
-        victim_team_number: Option<i32>,
-    },
+    HeroKilled(CCitadelUserMsgHeroKilled),
     TickEnd,
 }
 
